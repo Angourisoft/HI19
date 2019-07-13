@@ -1,3 +1,5 @@
+НЕАКТУЛЬНО от 13.07.2019
+
 # HI-19 Полная документация
 Не рекомендуется использовать эту документацию для старта, для этого есть README.
 
@@ -5,32 +7,46 @@
 
 ### config.py
 
-Перед началом работы вам нужно создать конфиг с некоторым набором параметров. Этот конфиг вы будете использователь в течении всей работы. Файл config позволяет использовать конфиг по умолчанию. Конфигурации вы можете менять либо в config, либо загрузить свой, либо создавать и редактировать на ходу.
+Перед началом работы вам нужно создать конфиг с некоторым набором параметров. Этот конфиг вы будете использователь в течении всей работы. Файл config позволяет использовать конфиг по умолчанию. Конфигурации вы можете менять либо в config, либо загрузить свой, либо создавать и редактировать на ходу. Однако рекомендуется сразу создать свой класс конфига и унаследоваться, при этом поменять определенные параметры
 Пример создания конфига:
 ```python
 from hypo2.config import RunConfig
-config = RunConfig()
+
+class MyConfig(RunConfig):
+    BACKUP_DIRECTORY = ???
+    MODEL_PATH = ???
+
+config = MyConfig()
 ```
 Параметры проекта:
-  1. VERT_RAY_THRESHOLD - минимальное количество пересечений луча с следом от ручки. Чем больше этот параметр, тем меньше будет разрезов и наоборот.
-  2. VERT_RAY_CHUNKMINSIZE - минимальная высота строки. На тот случай, если луч случайно все же пролетел, но строчка получилась в 4 пикселя.
-  3. VERT_RAY_CHUNKMAXSIZE - максимальная высота строки.
-  4. HORIZ_RAY_* - то же самое, только для горизонтального обхода
-  5. FINAL_SIZE - размер изображения, которое возвращается WordSegmentator и идет на вход HI model. Не рекомендуется менять этот параметр в ран-тайме.
-  6. CLASS_COUNT - количество классов, то есть разных людей, на которых мы будем обучать.
-  7. Далее идут параметры обучения
+  1. BACKUP_DIRECTORY - папка сохранения моделей при обучении сети
+  2. MODEL_PATH - путь к основной модели
+  3. VERT_RAY_THRESHOLD - минимальное количество пересечений луча с следом от ручки. Чем больше этот параметр, тем меньше будет разрезов и наоборот.
+  4. VERT_RAY_CHUNKMINSIZE - минимальная высота строки. На тот случай, если луч случайно все же пролетел, но строчка получилась в 4 пикселя.
+  5. VERT_RAY_CHUNKMAXSIZE - максимальная высота строки.
+  6. HORIZ_RAY_* - то же самое, только для горизонтального обхода
+  7. FINAL_SIZE - размер изображения, которое возвращается WordSegmentator и идет на вход HI model. Не рекомендуется менять этот параметр в ран-тайме.
+  8. CLASS_COUNT - количество классов, то есть разных людей, на которых мы будем обучать.
+  9. SHEET_ANGLE - угол для поворота изображения. Либо 0, либо "adaptive"
+  10. DEVICE - "cpu" или "cuda"
+  11. CACHE_PATH - путь для кэша
+  12. Далее идут параметры обучения
 
-### normalization.py
+### preprocessor.py
+
+```python
+from hypo2.preprocessor import Preprocessor
+pr = Preprocessor(config)
+```
 
   1. norm - нормализует изображение, принимая Pillow Image и возвращая ndarray в (w, h, 3) в [0; 255]
   2. open_norm - нормализует изображение из path
+  3. open_norm_segment - сегментирует слова после того, как нормализирует страницу
+  4. segment_words - сегментирует нормализованное изображение
 
-### preprocessing.py
-
-Единственная функция, рекомендуемая к использованию - segment_words.
-Требования к входу:
+Требования к входу segment_words:
   1. Все рукописные строчки должны были быть строго параллельны горизонту
-  2. Хотя вход должен быть ndarray (w, h, 3) и [0; 255], должно быть только два цвета: (0, 0, 0) для чернил и (255, 255, 255) для всего остального
+  2. Хотя вход должен быть ndarray (w, h, 3) и [0; 255]
 Выход:
 Массив изображений размера config.FINAL_SIZE, где каждое изображение - слово.
 
@@ -56,12 +72,12 @@ paths = [
 И чтобы получить входные и выходные данные обучающей выборки мы используем
 ```python
 from hypo2.dataset import Dataset
-from hypo2.normalization import Normalizator
-from hypo2.preprocessing import WordSegmentator
-nm = Normalizator(config)
-ws = WordSegmentator(config)
-dataset = Dataset(config, nm, ws)
+dataset = Dataset(config)
 X, y = dataset.gen_dataset(paths)
+```
+Если датасет лежит в правильной иерархии на диске, можно получить пути:
+```python
+paths = ds.gen_paths(path_to_your_dataset)
 ```
 
 ### model.py
@@ -82,44 +98,36 @@ model = HIModel(config)
 model.fit(X, y)
 ```
 
-#### predict, predict_proba
-predict_proba возвращает вероятность принадлежности к каждому классу
-predict - это просто argmax от predict_proba
+#### extract
+Возвращает Центр для (BS, 3, \*config.NN_INPUT_SIZE) и [-0.5; +0.5]
 
 #### open, save
 Открывает и сохраняет модель. При этом, open не является конструктором и модель должна быть инициализирована.
 
-### runtime
+### api
 
 Это файл API к HI-19. 
 
-#### RunTime (использование модели)
-Для инициализации среды RunTime помимо конфига потребуются экземпляры WordSegmentator и Normalizator, а также модель HIModel.
-Создадим WordSegmentator и Normalizator
+#### RunEnv (использование модели)
+Инициализируем RunEnv
 ```python
-from hypo2.normalization import Normalizator
-from hypo2.preprocessing import WordSegmentator
-nm = Normalizator(config)
-ws = WordSegmentator(config)
+from hypo2.api import RunEnv
+runenv = RunEnv(config)
 ```
-Откроем обученную модель
+Модель подгружается по пути config.MODEL_PATH
+
+##### get_center, open_image
+
+get_center вернет Центр по изображению.
 ```python
-model = HIModel(config)
-model.open("HI.19")
+center, weight = runenv.get_center(runenv.open_image("D:/image.jpg"))
 ```
-Инициализируем RunTime
+
+##### differ, dist, differ_from_paths
+
+differ находит расстояние между Центрами.
 ```python
-from hypo2.runtime import RunTime
-runtime = RunTime(config, model, ws, nm)
-```
-Для классифиакции используем classify для получения id класса, classify_proba для получения вероятностей по классам и differ для сравнения
-```python
-from PIL import Image
-image1 = Image.open("im1.jpg")
-image2 = Image.open("im2.jpg")
-class_id = runtime.classify(image1)
-class_probabilities = runtime.classify_proba(image1)
-distance = runtime.differ(image1, image2)
+
 ```
 
 #### FitTime (обучение модели)
