@@ -15,8 +15,8 @@ import time
 from IPython.display import clear_output
 from hypo2.addit.functions import Functional as F
 
-def createresnet(**kwargs):
-    model = ResNet(Bottleneck, [4, 12, 46, 4], **kwargs)
+def createresnet(layers, **kwargs):
+    model = ResNet(Bottleneck, layers, **kwargs)
     return model
 
 class FeatExtractor(nn.Module):
@@ -24,7 +24,7 @@ class FeatExtractor(nn.Module):
         super().__init__()
         self.config = config.copy()
 
-        self.i = createresnet(num_classes=config.FEATURES_COUNT)
+        self.i = createresnet(config.RESNET_LAYERS, num_classes=config.FEATURES_COUNT)
         if F.valid_path(config.MODEL_PATH):
             try:
                 self.i.load_state_dict(torch.load(config.MODEL_PATH))
