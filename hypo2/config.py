@@ -41,3 +41,4 @@ class RunConfig(BaseConfig):
 
     # GENERAL OPTIONS
     FEATURES_COUNT = 300                                                    # number
+    RESNET_LAYERS = [4, 12, 46, 4]                                          # 4-number array
