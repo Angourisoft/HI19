@@ -226,3 +226,12 @@ from hypo2.addit.functions import Functional as F
 ### projecttest
 
 Предоставляет тест самого проекта. Не рекомендуется к использованию напрямую.
+
+### cache
+
+Это файл кэша препроцессора. Рекомендуемое использование:
+```python
+from hypo2.base.cache import Cache
+cache = Cache(config)
+cache.clear()
+```
