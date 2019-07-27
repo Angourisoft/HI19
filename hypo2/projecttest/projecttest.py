@@ -62,15 +62,17 @@ def validate(config, model, paths, PAX, verbose=True):
     rctr = range(0, len(allnums) - 1, max(300 // (PAX ** 2), 1))
     if verbose:
         rctr = tqdm(rctr)
+    XXX = []
     for i in rctr:
         thr = (allnums[i] + allnums[i + 1]) / 2
+        XXX.append(thr)
         acc = countacc(X_dists, y_dists, thr)
         ns.append(acc)
         if acc > bacc:
             bacc = acc
             bh = thr
     if verbose:
-        plt.plot(ns)
+        plt.plot(XXX, ns)
 
 
     if verbose:

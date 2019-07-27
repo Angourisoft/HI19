@@ -21,24 +21,22 @@ class RunConfig(BaseConfig):
     LAYER_COUNT = 5                                                         # number
     N_EPOCHS = 100000                                                       # number
     VAL_PERIOD = 4                                                          # number
-    VAL_SHARE = 0.25                                                        # floating number
+    VAL_SHARE = 0.15                                                        # floating number
     VAL_EPOCHS = 4                                                          # number
     LEARNING_RATE = 5.0e-6                                                  # floating number
     DEVICE = "cuda"                                                         # "cuda", "cpu"
-    DS_SHUFFLE_LEN = 3000
-    BACKUP_PERIOD = 500                                                    # number
+    BACKUP_PERIOD = 500                                                     # number
 
-    # VISUALIZATION
+    # VISUALIZATION (NOT RECOMMENDED TO CHANGE)
     PLOT_REDRAW_PERIOD = 10                                                 # number
     PLOT_REDRAW_DENSE = 1                                                   # number
     SMOOTH_POWER = 30                                                       # number
-    DS_VISUALIZE_LEN = 500
 
-    # PATHS
-    CACHE_PATH = "./hi19media/cache"  # string, None
-    BACKUP_DIRECTORY = "D:/main/ml_prj/SchoolHWA/model_backups/"  # string, "None"
+    # PATHS (MUST BE CHANGED)
+    CACHE_PATH = "./hi19media/cache"                                        # string, None
+    BACKUP_DIRECTORY = "D:/main/ml_prj/SchoolHWA/model_backups/"            # string, "None"
     MODEL_PATH = "D:/main/ml_prj/SchoolHWA/mainm.h5"
 
-    # GENERAL OPTIONS
+    # GENERAL OPTIONS (HIGHLY NOT RECOMMENDED TO CHANGE)
     FEATURES_COUNT = 300                                                    # number
     RESNET_LAYERS = [4, 12, 46, 4]                                          # 4-number array

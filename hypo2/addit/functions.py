@@ -3,6 +3,9 @@ import random
 import torch
 import numpy as np
 from tqdm import tqdm_notebook as tqdm
+import math
+
+REVE = 1 - 1 / math.e
 
 class Functional:
     @staticmethod
@@ -27,8 +30,8 @@ class Functional:
         return (1 - (bX.type(torch.float) + tnoise.type(torch.float)).to(dev))
 
     @staticmethod
-    def count_distr(fy):
-        PS = [0 for i in range(fy.max() + 1)]
+    def count_distr(fy, cls):
+        PS = [0 for i in range(cls)]
         for y in fy:
             PS[y.item()] += 1
         return PS
@@ -40,8 +43,8 @@ class Functional:
             os.makedirs(dirpath)
 
     @staticmethod
-    def get_x_classes(X, y):
-        X_classes = [[] for i in range(np.array(y).max() + 1)]
+    def get_x_classes(X, y, cls):
+        X_classes = [[] for i in range(cls)]
         for f in range(len(y)):
             X_classes[y[f]].append(X[f])
         return X_classes
@@ -64,14 +67,16 @@ class Functional:
 
     @staticmethod
     def prepare_ds(X, y, cfg, test=True):
-        length = cfg.DS_SHUFFLE_LEN
-        X_classes = Functional.get_x_classes(X, y)
+        len1 = round(len(y) * (1 - cfg.VAL_SHARE))
+        len2 = round(len(y) * cfg.VAL_SHARE / REVE)
+        X_classes = Functional.get_x_classes(X, y, cfg.CLASS_COUNT)
+        assert len(X_classes) == cfg.CLASS_COUNT, "An error occurred while get X_classes"
         if test:
-            fX_train, fy_train = Functional.get_ds(X_classes, length, cfg, True)
-            fX_test, fy_test = Functional.get_ds(X_classes, length, cfg, False)
+            fX_train, fy_train = Functional.get_ds(X_classes, len1, cfg, True)
+            fX_test, fy_test = Functional.get_ds(X_classes, len2, cfg, False)
             return fX_train, fy_train, fX_test, fy_test
         else:
-            return Functional.get_ds(X_classes, length, cfg, False)
+            return Functional.get_ds(X_classes, len1 + len2, cfg, False)
 
     @staticmethod
     def gen_paths(path):

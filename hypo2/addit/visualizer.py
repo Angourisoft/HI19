@@ -16,7 +16,6 @@ class Visualizer(BaseHIObj):
             model = HIModel(self.config)
         model.train(False)
         cfg = self.config.copy()
-        cfg.DS_SHUFFLE_LEN = cfg.DS_VISUALIZE_LEN
         vX_tr, vy_tr = F.prepare_ds(X, y, cfg, False)
 
         if classes is None:

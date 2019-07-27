@@ -57,15 +57,18 @@ class HIModel(BaseHIObj):
 
     def fit(self, X, y, verbose=True, plot=False):
         assert len(X) == len(y), "X and y must have the same size"
+        assert max(y) + 1 <= self.config.CLASS_COUNT, "y classes mismatch config.CLASS_COUNT"
         self.__v = verbose
         self.__p = plot
         pr = self.__pr
         cfg = self.config
         X_train, y_train, X_test, y_test = F.prepare_ds(X, y, cfg, True)
+        assert len(X_train) > 0, "An error occurred while taking X_train"
+        assert len(X_test) > 0, "An error occurred while taking X_test"
         pr("First stage: fitting nn")
         REDRAW_SIZE = 20
         lasttime = time.time()
-        ydistr = F.count_distr(y_train)
+        ydistr = F.count_distr(y_train, cfg.CLASS_COUNT)
         crit = nn.CrossEntropyLoss(weight=torch.tensor(1 / np.array(ydistr)).to(self.device).type(torch.float))
         opt = torch.optim.Adam(self.featextractor.parameters(), lr=cfg.LEARNING_RATE)
         losses = []
@@ -126,7 +129,7 @@ class HIModel(BaseHIObj):
 
             if cfg.BACKUP_DIRECTORY is not None and i % cfg.BACKUP_PERIOD == cfg.BACKUP_PERIOD - 1:
                 p = cfg.BACKUP_DIRECTORY + uniqpath + "/model_" + str(i)
-                self.save(p)
+                self.saveto(p)
                 lastsave = p
 
             if i % cfg.VAL_PERIOD == cfg.VAL_PERIOD - 1:

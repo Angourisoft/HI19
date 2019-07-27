@@ -27,7 +27,7 @@ class RunEnv(BaseHIObj):
         return self.dist(self.get_center(im1)[0], self.get_center(im2)[0])
 
     def dist(self, c1, c2):
-        return F.dist(c1, c2)
+        return F.dist(c1, c2).item()
 
     def differ_from_paths(self, path1, path2):
         return self.differ(self.open_image(path1), self.open_image(path2))
