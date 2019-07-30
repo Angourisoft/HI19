@@ -44,10 +44,10 @@ from hypo2.preprocessor import Preprocessor
 pr = Preprocessor(config)
 ```
 
-#### norm, open_norm, open_norm_segment
+#### norm, open_norm, open_norm_segm
 norm - нормализует изображение, принимая Pillow Image и возвращая ndarray в (w, h, 3) в [0; 255]
 open_norm - нормализует изображение из path
-open_norm_segment - сегментирует слова после того, как нормализирует страницу
+open_norm_segm - сегментирует слова после того, как нормализирует страницу
 
 #### segment_words
 segment_words - сегментирует нормализованное изображение
