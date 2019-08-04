@@ -27,7 +27,7 @@ class FeatExtractor(nn.Module):
         self.i = createresnet(config.RESNET_LAYERS, num_classes=config.FEATURES_COUNT)
         if F.valid_path(config.MODEL_PATH):
             try:
-                self.i.load_state_dict(torch.load(config.MODEL_PATH))
+                self.i.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))
             except:
                 print("An error occured while trying to load weights. A new model created.")
 
