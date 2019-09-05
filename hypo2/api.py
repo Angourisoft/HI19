@@ -18,7 +18,10 @@ class RunEnv(BaseHIObj):
     def get_center(self, image):
         normed = self.preprocessor.norm(image)
         words = self.preprocessor.segment_words(normed)
-        return self.model.get_center(F.words2word_block(words)), len(words)
+        if len(words) == 0:
+            return None
+        else:
+            return self.model.get_center(F.words2word_block(words)), len(words)
 
     def open_image(self, path):
         return self.preprocessor.open(path)
