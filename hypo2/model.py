@@ -30,7 +30,7 @@ class FeatExtractor(nn.Module):
         self.t = nn.Sequential(
             nn.ReLU(),
             nn.Linear(config.FEATURES_COUNT, config.CLASS_COUNT),
-            nn.Softmax()
+            nn.Softmax(dim=1)
         )
 
     def classify_proba(self, x):

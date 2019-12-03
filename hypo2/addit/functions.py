@@ -83,7 +83,7 @@ class Functional:
         directories = os.listdir(path)
         res = []
         for directory in directories:
-            pp = path + "/" + dir
+            pp = path + "/" + directory
             files = os.listdir(pp)
             res.append([pp + "/" + i for i in files])
         return res
