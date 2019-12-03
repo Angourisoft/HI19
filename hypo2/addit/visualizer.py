@@ -31,7 +31,7 @@ class Visualizer(BaseHIObj):
 
         fXl = []
         fyl = []
-        for i in tqdm(range(len(vy_t))):
+        for i, _ in tqdm(enumerate(vy_t)):
             rad = random.randint(0, len(vX_t) - self.config.BATCH_SIZE)
             if True:
                 x = vX_t[rad : rad + self.config.BATCH_SIZE]
@@ -45,7 +45,7 @@ class Visualizer(BaseHIObj):
         cm = comp(n_components=2)
         vecs = cm.fit_transform([l.tolist() for l in fXl])
         onearr = []
-        for i in range(len(vecs)):
+        for i, _ in enumerate(vecs):
             onearr.append((vecs[i], fyl[i]))
         colors = sorted(onearr, key=lambda x: x[1])
         diffars = [list() for i in range(colors[-1][1] + 1)]

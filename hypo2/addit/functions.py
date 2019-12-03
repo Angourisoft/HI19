@@ -9,7 +9,7 @@ REVE = 1 - 1 / math.e
 class Functional:
     @staticmethod
     def valid_path(path):
-        if type(path) != str:
+        if not isinstance(path, str):
             return False
         return os.path.exists(path)
 
@@ -92,7 +92,7 @@ class Functional:
     def validate_model(config, model, fX_test, fy_test):
         total_elems = 0
         total_sum = 0
-        for i in range(config.VAL_EPOCHS):
+        for _ in range(config.VAL_EPOCHS):
             batch_id = random.randint(0, len(fX_test) - config.BATCH_SIZE)
             X_b = Functional.runtime_preprocess(config, fX_test[batch_id: batch_id + config.BATCH_SIZE])
             ytrue = fy_test[batch_id : batch_id + config.BATCH_SIZE]

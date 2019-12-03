@@ -36,7 +36,7 @@ def validate(config, model, paths, PAX, verbose=True):
     X_dists = []
     y_dists = []
     for pss in tqdm(pointss):
-        for i in range(len(pss)):
+        for i, _ in enumerate(pss):
             for j in range(i + 1, len(pss)):
                 X_dists.append(F.dist(pss[i], pss[j]).item())
                 y_dists.append(0)
