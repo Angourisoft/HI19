@@ -3,19 +3,19 @@ HI-19 is a system developed for identifying and distinguishing peoples' handrwri
 ## Generally
 
 ### How does HI-19 work?
-  1. First, we no. Листы бумаги далее сегментируются на слова.
-  3. Теперь на них должна обучиться модель. HIModel из model
-  4. Для работы с API модели рекомендуется использовать классы RunEnv для рантайма и FitEnv для обучения из hypo2.api
+  1. First, the received photo is segmented into words
+  2. Afterwards, we need to fit the model. HIModel из model
+  3. To work with HI-19 API we recommend to use RunEnv for run-time and FitEnv for fitting, both from hypo2.api
 
-### Структура файлов
-  - config.py - файл конфигурации всего проекта.
-  - model.py - описание и функционал модели HI
-  - api.py - API для использования модели
+### Structure
+  - config.py - project configuration file
+  - model.py - implementation and functions of the HIModel
+  - api.py
 
-## Работа с моделью
+## Model
 
-### Прежде всего
-Перед тем, как использовать HI19, нужно настроить проект. Создадим myconfig.py (в папке "hypo2/..") и впишем туда код:
+### First of all
+First, we configure the project. Create file myconfig.py and insert the following code:
 ```python
 from hypo2.config import RunConfig
 
@@ -23,20 +23,20 @@ class MyConfig(RunConfig):
     BACKUP_DIRECTORY = ???
     MODEL_PATH = ???
 ```
-Вместо ??? следует вписать либо путь, либо None. BACKUP_DIRECTORY - путь к папке, куда будут сохраняться резервные копии при обучении. MODEL_PATH - путь к основной модели.
+Substitute ??? with either the appropriate path or None. BACKUP_DIRECTORY is a path to the directory, where backup models will be saved. MODEL_PATH - a path to the final model.
 
-Теперь необходимо создать переменную конфига. Это просто:
+Then, let us create the config variable. It is simple:
 ```python
 from myconfig import MyConfig
 config = MyConfig()
 ```
-При этом, вы можете менять какие-то параметры конфигурации прямо на ходу. Чтобы посмотреть текущие значения конфига просто сделайте
+So, you can change some settings right in the run-time. To have a look at the configs just type
 ```
 print(config)
 ```
 
-### Обучение
-Датасет, который мы имеем, должен представлять из себя массив следующего вида:
+### Fitting
+The dataset we have should be structured in the following way:
 ```
 [
   [
@@ -53,74 +53,71 @@ print(config)
   ]
 ]
 ```
-Иначе говоря каждый элемент датасета - это массив ссылок на картинки одного класса. При этом необходимо изменить конфигурацию проекта, как минимум, CLASS_COUNT.
-Итак, пусть мы уже имеем Датасет dataset.
-Импортируем api
+In other words, every item of the array is an array of links to photos of one class. You have to change the config variable, at least, CLASS_COUNT.
+Let us say we already have dataset.
+Imporint api
 ```python
 from hypo2.api import FitEnv
 ```
-FitTime позволяет очень легко обучить модель. Создадим экземпляр среды:
+FitTime enables to fit the model easily. Creating an instance of FitEnv:
 ```python
 fitenv = FitEnv(config)
 ```
-Среда подготовлена к обучению. FitEnv сам создаст модель, обработает входные данные и настроит систему. Обучим модель:
+The environment is ready to fit. FitEnv will create a model, process the input, and set the system. Let us fit the model:
 ```python
 model = fitenv.fit(dataset, verbose=True, plot=False)
 ```
-verbose - выводить ли результаты эпох.
-plot - вывести ли динамику loss по окончанию обучения.
-model - это обученная модель HI.
+verbose is whether to output epoch results.
+plot is whether to plot loss diagram.
+model is the result of fitting.
 
-#### Работа с моделью
-Модель можно сохранить с помощью
+#### Model methods
+You can save your model via
 ```python
 model.save()
 ```
-То есть без указания пути. Путь будет равным указанному в config.MODEL_PATH
+The path the model will be saved to is config.MODEL_PATH
 
-Либо (устаревший метод)
+If you want to do it manually, specify the path (deprecated method)
 ```python
 model.saveto("D:/HI.19")
 ```
-Тут путь указывается вручную
 
-Чтобы открыть модель, достаточно указать в config.MODEL_PATH путь к модели и уже после создать модель.
+To open the model, specify it in config.MODEL_PATH and then create an instance.
 ```python
 config.MODEL_PATH = "D:/HI.19"
 model = HIModel(config)
 ```
-Если требуется переоткрыть модель, можно использовать
+If you want to reopen the model
 ```python
 model.open()
 ```
-Либо использовать устаревший метод:
+Or use a deprecated method:
 ```python
 model.openfrom("HI.19")
 ```
 
-### Использование
+### Usage
 
-Импортирум и создаем RunEnv
+Importing and creating RunEnv
 ```python
 from hypo2.api import RunEnv
 runenv = RunEnv(config)
 ```
-Теперь попробуем получить Центр по фото:
+Let us try to get a Center by photo:
 ```python
 image = runenv.open_image("johns_text.jpg")
 cw = runenv.get_center(image)
 assert cw is not None, "0 words found"
 center, weight = cw
 ```
-Где center - это вектор длиной config.FEATURES_COUNT, а weight - целое число, обозначающее количество найденных слов (оно же - вес центра, требуемый впоследствии если понадобится двигать центр при наличии дополнительных данных о человеке)
-Чтобы сравнить два изображения и получить разницу между ними нужно использовать differ
+Where center is a vector of length config.FEATURES_COUNT, and weight is an integer, that is equal to the total amound of 
+found words.
+To compare two images and get the difference between them, use differ
 ```python
 distance = runenv.differ(image1, image2)
 ```
-А если уже есть центры, то расстояние между ними можно получить функцией
+If you already have centers, then you can find out the distance between them using function
 ```python
 distance = runenv.dist(john_center, mary_center)
 ```
-Посмотреть UML-диаграммы можно в единственном файле \*.png
-
-Все.
