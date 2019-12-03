@@ -22,7 +22,7 @@ class Visualizer(BaseHIObj):
             vX_t, vy_t = vX_tr, vy_tr
         else:
             vX_t, vy_t = [], []
-            for i in range(len(vX_tr)):
+            for i, _ in enumerate(vX_tr):
                 if vy_tr[i] in classes:
                     vX_t.append(vX_tr[i])
                     vy_t.append(vy_tr[i])
@@ -40,7 +40,8 @@ class Visualizer(BaseHIObj):
                 fyl.extend(vy_t[rad : rad + self.config.BATCH_SIZE])
         return fXl, fyl
 
-    def build_comp(self, fXl, fyl, comp):
+    @staticmethod
+    def build_comp(fXl, fyl, comp):
         cm = comp(n_components=2)
         vecs = cm.fit_transform([l.tolist() for l in fXl])
         onearr = []
@@ -54,7 +55,8 @@ class Visualizer(BaseHIObj):
             plt.scatter([v[0] for v in diffarr], [v[1] for v in diffarr])
         plt.show()
 
-    def get_distance_distribution(self, fXl, fyl):
+    @staticmethod
+    def get_distance_distribution(fXl, fyl):
         the_same_person = []
         different_people = []
         for _ in range(1000):

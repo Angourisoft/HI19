@@ -174,18 +174,8 @@ class Preprocessor(BaseHIObj):
     def get_ray_lines(self, img, thr):
         if type(thr) in [float, int]:
             return self.__const_get_ray_lines(img, thr)
-        elif type(thr) == str and thr == "adaptive":
+        elif isinstance(thr, str) and thr == "adaptive":
             f = lambda x: self.__const_get_ray_lines(img, x)
-            '''
-            lns = []
-            bs = -1
-            for i in range(5, 70, 5):
-                lns_new = self.__const_get_ray_lines(img, i)
-                if len(lns_new) > len(lns):
-                    lns = lns_new
-                    bs = i
-            return lns
-            '''
             return self.__const_get_ray_lines(img, self.search(f, 2, 100))
         else:
             exc.raiseExcep("Not valid threshold! thr =", str(thr), "but is required to be number or string ('adaptive')")

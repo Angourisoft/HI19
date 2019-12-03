@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 def countacc(X, y, thr):
     s = 0
-    for i in range(len(X)):
+    for i in enumerate(X):
         if (X[i] < thr and y[i] == 0) or (X[i] > thr and y[i] == 1):
             s += 1
     return s / len(X)

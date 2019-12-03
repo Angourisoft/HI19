@@ -95,9 +95,9 @@ class HIModel(BaseHIObj):
             opt.step()
             opt.zero_grad()
 
-            all = cfg.BATCH_SIZE
+            allb = cfg.BATCH_SIZE
             s = torch.argmax(ypred.cpu(), dim=1) == ytrue.type(torch.long)
-            accs.append(s.sum().item() / all)
+            accs.append(s.sum().item() / allb)
             losses.append(loss.item())
             g_accs.append(sum(accs[-cfg.SMOOTH_POWER:]) / len(accs[-cfg.SMOOTH_POWER:]))
             g_losses.append(sum(losses[-cfg.SMOOTH_POWER:]) / len(losses[-cfg.SMOOTH_POWER:]))
