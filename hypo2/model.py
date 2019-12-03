@@ -1,13 +1,7 @@
 from hypo2.base.basef import BaseHIObj
 import torch.nn as nn
-import sklearn
-from sklearn.ensemble import RandomForestClassifier
 import random
-from sklearn.model_selection import train_test_split
 import numpy as np
-from torch.nn import Sequential
-import os
-import pickle
 import torch
 import matplotlib.pyplot as plt
 from torchvision.models.resnet import ResNet, Bottleneck
@@ -15,16 +9,18 @@ import time
 from IPython.display import clear_output
 from hypo2.addit.functions import Functional as F
 
-def createresnet(layers, **kwargs):
+
+def create_resnet(layers, **kwargs):
     model = ResNet(Bottleneck, layers, **kwargs)
     return model
+
 
 class FeatExtractor(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config.copy()
 
-        self.i = createresnet(config.RESNET_LAYERS, num_classes=config.FEATURES_COUNT)
+        self.i = create_resnet(config.RESNET_LAYERS, num_classes=config.FEATURES_COUNT)
         if F.valid_path(config.MODEL_PATH):
             try:
                 self.i.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))
@@ -44,6 +40,7 @@ class FeatExtractor(nn.Module):
 
     def extract(self, x):
         return self.i(x)
+
 
 class HIModel(BaseHIObj):
     def __init__(self, config):

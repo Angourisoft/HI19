@@ -1,6 +1,5 @@
 from tqdm import tqdm_notebook as tqdm
 from hypo2.addit.functions import Functional as F
-import torch
 from hypo2.preprocessor import Preprocessor
 import os
 import random

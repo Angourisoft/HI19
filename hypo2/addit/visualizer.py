@@ -57,7 +57,7 @@ class Visualizer(BaseHIObj):
     def get_distance_distribution(self, fXl, fyl):
         the_same_person = []
         different_people = []
-        for i in range(1000):
+        for _ in range(1000):
             i1 = random.randint(0, len(fXl) - 1)
             i2 = random.randint(0, len(fXl) - 1)
             if i1 == i2:

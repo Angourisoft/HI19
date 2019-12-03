@@ -1,9 +1,6 @@
 from hypo2.base.basef import BaseHIObj
 import numpy as np
-import os
 from hypo2.base.cache import Cache
-import matplotlib.pyplot as plt
-import PIL.ImageOps
 from IPython.display import clear_output
 from hypo2.preprocessor import Preprocessor
 from hypo2.addit.functions import Functional as F

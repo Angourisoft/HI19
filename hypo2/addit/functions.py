@@ -2,7 +2,6 @@ import os
 import random
 import torch
 import numpy as np
-from tqdm import tqdm_notebook as tqdm
 import math
 
 REVE = 1 - 1 / math.e
@@ -26,7 +25,8 @@ class Functional:
     def runtime_preprocess(config, bX):
         dev = torch.device(config.DEVICE)
         bX = torch.tensor(Functional.add_padding_4(1 - (bX + 1/2), (config.NN_INPUT_SIZE[0], config.NN_INPUT_SIZE[1])))
-        tnoise = torch.from_numpy(np.stack([np.stack([np.random.randn(config.NN_INPUT_SIZE[0], config.NN_INPUT_SIZE[1])] * 3, axis=2) / 30 for j in range(bX.shape[0])])).transpose(1, 3)
+        tnoise = torch.from_numpy(np.stack([np.stack([np.random.randn(config.NN_INPUT_SIZE[0], config.NN_INPUT_SIZE[1])\
+                                                      ] * 3, axis=2) / 30 for j in range(bX.shape[0])])).transpose(1, 3)
         return (1 - (bX.type(torch.float) + tnoise.type(torch.float)).to(dev))
 
     @staticmethod
@@ -45,7 +45,7 @@ class Functional:
     @staticmethod
     def get_x_classes(X, y, cls):
         X_classes = [[] for i in range(cls)]
-        for f in range(len(y)):
+        for f, _ in enumerate(y):
             X_classes[y[f]].append(X[f])
         return X_classes
 
@@ -80,9 +80,9 @@ class Functional:
 
     @staticmethod
     def gen_paths(path):
-        dirs = os.listdir(path)
+        directories = os.listdir(path)
         res = []
-        for dir in dirs:
+        for directory in directories:
             pp = path + "/" + dir
             files = os.listdir(pp)
             res.append([pp + "/" + i for i in files])
@@ -90,21 +90,21 @@ class Functional:
 
     @staticmethod
     def validate_model(config, model, fX_test, fy_test):
-        all = 0
-        s = 0
+        total_elems = 0
+        total_sum = 0
         for i in range(config.VAL_EPOCHS):
             batch_id = random.randint(0, len(fX_test) - config.BATCH_SIZE)
             X_b = Functional.runtime_preprocess(config, fX_test[batch_id: batch_id + config.BATCH_SIZE])
             ytrue = fy_test[batch_id : batch_id + config.BATCH_SIZE]
             ypred = model(X_b)
-            all += config.BATCH_SIZE
-            s += (torch.argmax(ypred.cpu(), dim=1) == ytrue.type(torch.long)).sum().item()
-        acc = s / all
+            total_elems += config.BATCH_SIZE
+            total_sum += (torch.argmax(ypred.cpu(), dim=1) == ytrue.type(torch.long)).sum().item()
+        acc = total_sum / total_elems
         return acc
 
     @staticmethod
     def words2word_block(words):
-        if type(words) == list:
+        if isinstance(words, list):
             words = np.stack(words)
         x = words.transpose((0, 3, 2, 1))
         return x

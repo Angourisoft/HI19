@@ -1,13 +1,10 @@
 from hypo2.base.basef import BaseHIObj
-import hypo2.model
 from hypo2.model import HIModel
 from hypo2.preprocessor import Preprocessor
 from hypo2.dataset import Dataset
-import os
-import PIL.ImageOps
-import numpy as np
 from hypo2.base.cache import Cache
 from hypo2.addit.functions import Functional as F
+
 
 class RunEnv(BaseHIObj):
     def __init__(self, cfg):
@@ -34,6 +31,7 @@ class RunEnv(BaseHIObj):
 
     def differ_from_paths(self, path1, path2):
         return self.differ(self.open_image(path1), self.open_image(path2))
+
 
 class FitEnv(BaseHIObj):
     def __init__(self, cfg):
